@@ -1,7 +1,7 @@
 import "./globals.css";
-import { Montserrat } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 
-const inter = Montserrat({ subsets: ["latin"] });
+const inter = JetBrains_Mono({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Create Next App",

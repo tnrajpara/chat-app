@@ -7,11 +7,15 @@ import { ref, push, onValue } from "firebase/database";
 import { database } from "../firebase";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
+import { signOut } from "../config";
+import { auth } from "../firebase";
 
 const ChatPage = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
   const [cookies, setCookie] = useCookies(["user", "roomName"]);
+  const [user, setUser] = useState(false);
 
   const socket = io("http://localhost:8000");
 
@@ -19,8 +23,16 @@ const ChatPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch initial chat messages from the server
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/Login");
+      } else {
+        setUser(true);
+      }
+    });
+  });
 
+  useEffect(() => {
     const messagesRef = ref(database, `rooms/${roomName}/messages`);
 
     onValue(messagesRef, (snapshot) => {
@@ -68,16 +80,28 @@ const ChatPage = () => {
       <div className="bg-gray-800 p-4 flex justify-between items-center space-x-2">
         <h1 className="text-center font-bold">ChatBoard:</h1>
         <p className="font-semibold text-gray-200"> {roomName}</p>
+        <div className="flex space-x-44">
+          <button
+            className="bg-blue-500 text-white p-2"
+            style={{ marginLeft: "auto" }}
+            onClick={() => {
+              router.push("/Allrooms");
+            }}
+          >
+            All Rooms
+          </button>
 
-        <button
-          className="bg-blue-500 text-white p-2"
-          style={{ marginLeft: "auto" }}
-          onClick={() => {
-            router.push("/Allrooms");
-          }}
-        >
-          All Rooms
-        </button>
+          <button
+            className="bg-red-500 text-white p-2"
+            style={{ marginLeft: "auto" }}
+            onClick={() => {
+              signOut();
+              router.push("/Login");
+            }}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       <div className="flex-grow p-4 overflow-y-auto">

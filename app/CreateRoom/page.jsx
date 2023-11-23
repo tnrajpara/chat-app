@@ -2,14 +2,26 @@
 import { useEffect, useState } from "react";
 import { ref, set, push } from "firebase/database";
 import { database } from "../firebase";
-import { io } from "socket.io-client";
+import { onAuthStateChanged } from "firebase/auth";
 import { useCookies } from "react-cookie";
 import Link from "next/link";
+import { auth } from "../firebase";
 
 const CreateRoomPage = () => {
   const [roomName, setRoomName] = useState("");
   const [cookies] = useCookies(["user"]);
   const [roomCookie, setRoomCookie] = useCookies(["roomName"]);
+  const [user, setUser] = useState(false);
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/Login");
+      } else {
+        setUser(true);
+      }
+    });
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,22 +29,19 @@ const CreateRoomPage = () => {
       alert("Please enter a valid room name");
       return;
     }
-    try {
-      let user = cookies.user;
-      const socket = io("http://localhost:8000");
-      let room = roomName.trim();
-      socket.emit("join-room", room, user);
-      socket.on("room-users", (room, user) => {
-        console.log(`User ${user} joined room ${room}`);
-      });
+    if (!user) {
+      alert("Please login first");
+      return;
+    } else {
+      try {
+        const roomsRef = ref(database, "rooms");
+        const newRoomRef = push(roomsRef);
 
-      const roomsRef = ref(database, "rooms");
-      const newRoomRef = push(roomsRef);
-
-      await set(newRoomRef, { roomName });
-      setRoomCookie("roomName", roomName.toLowerCase());
-    } catch (error) {
-      console.error("Error retrieving user data:", error);
+        await set(newRoomRef, { roomName });
+        setRoomCookie("roomName", roomName.toLowerCase());
+      } catch (error) {
+        console.error("Error while creating room :: CreateRoom.jsx:", error);
+      }
     }
   };
 

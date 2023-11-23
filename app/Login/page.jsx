@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ref, get } from "firebase/database";
 import { useRouter } from "next/navigation";
-import { database } from "../firebase";
 import { useCookies } from "react-cookie";
+import { signIn } from "../config";
+import Link from "next/link";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -11,29 +11,18 @@ const Login = () => {
   const [cookie, setCookie] = useCookies(["user"]);
 
   const router = useRouter();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const usersRef = ref(database, "/users");
-      const snapshot = await get(usersRef);
-      if (snapshot.exists()) {
-        const userData = snapshot.val();
-        const users = Object.values(userData);
-        const user = users.find(
-          (u) => u.username === username && u.password === password
-        );
 
-        if (user) {
-          setCookie("user", username);
-          router.push("/CreateRoom");
-        } else {
-          console.log("Invalid username or password");
-        }
-      } else {
-        console.log("User not found");
+    try {
+      const user = await signIn(username, password);
+      if (user) {
+        setCookie("user", username);
+        router.push("/CreateRoom");
       }
     } catch (error) {
-      console.error("Error retrieving user data:", error);
+      console.error("Error while sign in Login:", error);
     }
   };
 
@@ -67,6 +56,14 @@ const Login = () => {
             >
               Login
             </button>
+            <Link
+              href={"/Register"}
+              className="
+             underline text-cyan-700 
+            "
+            >
+              Register
+            </Link>
           </form>
         </div>
       </div>
