@@ -2,44 +2,34 @@
 import React, { useEffect, useState } from "react";
 import { ref, push, get } from "firebase/database";
 import { useRouter } from "next/navigation";
-import { database } from "../firebase";
+import { auth } from "../firebase";
 import Link from "next/link";
+import { createUser } from "../config";
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [usernameExists, setUsernameExists] = useState(false);
-  const [showErrorMessage, setShowErrorMessage] = useState(false); // New state to control message visibility
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
 
   const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (password === confirmPassword) {
-      const userRef = ref(database, "/users");
-      get(userRef).then((snapshot) => {
-        const userData = snapshot.val();
-        const users = Object.values(userData);
-        const user = users.find((u) => u.username === username);
+    try {
+      if (password === confirmPassword) {
+        const user = await createUser(username, password);
+        console.log(user);
         if (user) {
-          setUsernameExists(true);
-          setShowErrorMessage(true); // Show the error message
-          setTimeout(() => {
-            setShowErrorMessage(false); // Hide the error message after 10 seconds
-          }, 5000);
+          router.push("/Login");
         } else {
-          setUsernameExists(false);
-          push(userRef, {
-            username: username,
-            password: password,
-          }).then((newUserRef) => {
-            console.log("Document written with ID: ", newUserRef.key);
-            router.push("/Login");
-          });
+          setShowErrorMessage(true);
         }
-      });
+      }
+    } catch (err) {
+      console.log("Error creating user :: handSubmit-register.jsx", err);
     }
   };
 

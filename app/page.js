@@ -1,12 +1,33 @@
 "use client";
-import Register from "./Register/page.jsx";
+import React from "react";
+import Register from "../app/Register/page";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
+import AllRooms from "./Allrooms/page";
+const Page = () => {
+  const [user, setUser] = React.useState(false);
 
-const page = () => {
+  React.useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(false);
+      }
+    });
+  });
+
   return (
     <div>
-      <Register />
+      {user ? (
+        <AllRooms />
+      ) : (
+        <div>
+          <Register />
+        </div>
+      )}
     </div>
   );
 };
 
-export default page;
+export default Page;
