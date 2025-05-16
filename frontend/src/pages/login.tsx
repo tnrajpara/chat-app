@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { API_URL } from "@/constants";
-import axios, { Axios } from "axios";
+import axios from "axios";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
@@ -33,6 +33,7 @@ export default function LoginForm() {
         toast.success("Login successfull");
         navigate("/");
       }
+
       if (res.status === 400) {
         toast.warning("Something is missing");
         return;

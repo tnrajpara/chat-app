@@ -91,7 +91,6 @@ function Room() {
     isConnected,
     chats,
     currentChannel,
-    chatUsers,
     connectSocket,
     disconnectSocket,
     joinChannel,

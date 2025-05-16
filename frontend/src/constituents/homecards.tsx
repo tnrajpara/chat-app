@@ -16,12 +16,7 @@ import { useState } from "react";
 import { PasswordModal } from "./ask-password-modal";
 import { API_URL } from "@/constants";
 import axios from "axios";
-import {
-  fetchRoom,
-  useRoomQuery,
-  type OtherRoom,
-  type Room,
-} from "@/queries/actions";
+import { fetchRoom, type OtherRoom, type Room } from "@/queries/actions";
 import { toast } from "sonner";
 
 export interface RoomSummary {
