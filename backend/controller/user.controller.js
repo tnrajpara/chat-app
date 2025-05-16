@@ -6,7 +6,6 @@ const { createAccessToken, createRefreshToken } = require("../utils/jwtUtils");
 
 const verify = async (req, res) => {
   try {
-    console.log("user", req.user);
     res.json({ user: req.user });
   } catch (error) {
     console.error("Verification error:", error);

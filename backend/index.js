@@ -20,6 +20,10 @@ app.use(cookieParser());
 app.use(express.json());
 
 // REST API routes
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
 app.use("/api/users", require("./routes/user.route"));
 app.use("/api/rooms", require("./routes/room.route"));
 app.use("/api/chats", require("./routes/chat.route"));
