@@ -21,6 +21,7 @@ app.use(express.json());
 
 // REST API routes
 app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:5173");
   res.header("Access-Control-Allow-Credentials", "true");
   next();
 });
@@ -66,7 +67,7 @@ io.use(async (socket, next) => {
     next();
   } catch (err) {
     console.error("Authentication error:", err.message);
-    return next(new Error(`Authentication error: ${err.message}`));
+    next(new Error(err.message));
   }
 });
 
@@ -92,7 +93,6 @@ io.on("connection", async (socket) => {
   socket.emit("online_users", {
     onlineUsers: Array.from(onlineUsers.keys()),
   });
-  console.log("online users", onlineUsers);
 
   socket.on("join_channel", async (channelName) => {
     if (socket.rooms.has(channelName)) {
@@ -240,6 +240,10 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", () => {
+    Object.keys(typingUsers).forEach((roomId) => {
+      typingUsers[roomId].delete(socket.user?.payload?.name);
+    });
+
     if (onlineUsers.get(userId) === socket.id) {
       onlineUsers.delete(userId);
       io.emit("user_offline", { userId });
