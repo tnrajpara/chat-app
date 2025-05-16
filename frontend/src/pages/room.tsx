@@ -40,7 +40,7 @@ type GroupedMessage = {
   }[];
 };
 
-function Room() {
+function RoomPage() {
   const room_id = useParams().room_id;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
@@ -666,4 +666,4 @@ function Room() {
   );
 }
 
-export default Room;
+export default RoomPage;
