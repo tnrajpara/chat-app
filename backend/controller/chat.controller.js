@@ -14,10 +14,14 @@ const getChatsByRoomId = async (req, res) => {
     }
 
     const chats = await Chat.find(query)
-      .sort({ created_at: -1 })
+      .sort({ create_at: -1 })
       .limit(parseInt(limit));
 
-    return res.status(200).json({ chats: chats.reverse() });
+    return res.status(200).json({
+      chats: chats,
+      hasMore: chats.length === parseInt(limit),
+      oldestMessageTimestamp: chats[0]?.created_at,
+    });
   } catch (error) {
     console.error("Error fetching chat history:", error);
     return res.status(500).json({
@@ -26,7 +30,6 @@ const getChatsByRoomId = async (req, res) => {
     });
   }
 };
-
 module.exports = {
   getChatsByRoomId,
 };

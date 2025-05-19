@@ -33,6 +33,10 @@ type ChatStore = {
   addOnlineUser: (userId: string) => void;
   removeOnlineUser: (userId: string) => void;
   setOnlineUsers: (users: string[]) => void;
+
+  hasMoreMessages: boolean;
+  isLoadingMore: boolean;
+  loadMoreMessages: () => Promise<void>;
 };
 
 export const useChatStore = create<ChatStore>((set, get) => ({
@@ -42,6 +46,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   chats: [],
   chatUsers: [],
   onlineUsers: [],
+  hasMoreMessages: false,
+  isLoadingMore: false,
 
   connectSocket: () => {
     const socket = io(API_URL, {
@@ -50,12 +56,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     });
 
     socket.on("connect", () => {
-      console.log("Socket connected successfully");
       set({ isConnected: true });
     });
 
     socket.on("disconnect", () => {
-      console.log("Socket disconnected");
       set({ isConnected: false });
     });
 
@@ -148,7 +152,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   joinChannel: (channelName) => {
     const { socket } = get();
     if (socket) {
-      console.log(`Joining channel: ${channelName}`);
+      // console.log(`Joining channel: ${channelName}`);
       socket.emit("join_channel", channelName);
       set({
         currentChannel: channelName,
@@ -204,7 +208,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           content: chat.content,
           created_at: getHoursMinutes(chat.created_at),
         }));
-        set({ chats: formattedChats });
+        set({ chats: formattedChats, hasMoreMessages: res.data.hasMore });
       }
     } catch (err) {
       console.error("Error loading initial chats:", err);
@@ -212,6 +216,34 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       if (socket?.connected && currentChannel) {
         socket.emit("request_chat_history", { channel: currentChannel });
       }
+    }
+  },
+
+  loadMoreMessages: async () => {
+    const { currentChannel, chats, isLoadingMore } = get();
+    if (!currentChannel || isLoadingMore) return;
+
+    set({ isLoadingMore: true });
+
+    const oldestMessageTimestamp = chats[0]?.created_at;
+
+    const res = await api.get(
+      `/api/chats/${currentChannel}?limit?=50&before${oldestMessageTimestamp}`
+    );
+
+    if (res.data?.chats?.length) {
+      const formattedChats = res.data.chats.map((chat: any) => ({
+        room_id: chat.room_id,
+        sender: chat.sender.email || chat.sender,
+        content: chat.content,
+        created_at: getHoursMinutes(chat.created_at),
+      }));
+
+      set((state) => ({
+        chats: [...formattedChats, ...state.chats],
+        hasMoreMessages: res.data.hasMore,
+        isLoadingMore: false,
+      }));
     }
   },
 

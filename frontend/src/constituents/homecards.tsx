@@ -7,7 +7,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { DoorOpen, Hash, Loader2, Lock, User } from "lucide-react";
+import { DoorOpen, Hash, Lock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
 import { LoadingSpinner } from "@/components/ui/spinner";
@@ -177,8 +177,7 @@ export default function HomeCards() {
                 >
                   {isProcessingJoin && selectedRoomId === room._id ? (
                     <span className="flex items-center gap-2">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      Joining...
+                      <LoadingSpinner text="Joining room..." />
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">

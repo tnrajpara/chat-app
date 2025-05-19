@@ -2,22 +2,37 @@ import type React from "react";
 
 interface SpinnerProps {
   text?: string;
+  size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
 export const LoadingSpinner: React.FC<SpinnerProps> = ({
   text = "Loading...",
+  size = "md",
+  className = "",
 }) => {
+  const sizeClasses = {
+    sm: "h-4 w-4 border-2",
+    md: "h-6 w-6 border-3",
+    lg: "h-8 w-8 border-4",
+  };
+
+  const textSizeClasses = {
+    sm: "text-xs",
+    md: "text-sm",
+    lg: "text-base",
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="relative flex flex-col items-center">
-        <div className="relative h-16 w-16">
-          <div className="absolute h-full w-full rounded-full border-4 border-t-black border-r-black border-b-transparent border-l-transparent animate-spin"></div>
-          <div className="absolute h-8 w-8 rounded-full border-4 border-t-white border-r-white border-b-transparent border-l-transparent animate-spin-reverse top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
-        </div>
-        {text && (
-          <p className="mt-4 text-sm font-medium text-foreground">{text}</p>
-        )}
+    <div className={`inline-flex items-center gap-2 ${className}`}>
+      <div className="relative flex-shrink-0">
+        <div
+          className={`rounded-full border-t-current border-r-current border-b-transparent border-l-transparent animate-spin ${sizeClasses[size]}`}
+        ></div>
       </div>
+      {text && (
+        <span className={`text-current ${textSizeClasses[size]}`}>{text}</span>
+      )}
     </div>
   );
 };

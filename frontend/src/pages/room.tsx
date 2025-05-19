@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Hash,
+  ChevronUp,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import { Input } from "@/components/ui/input";
@@ -91,30 +92,30 @@ function RoomPage() {
     isConnected,
     chats,
     currentChannel,
+    onlineUsers,
+    hasMoreMessages,
+    isLoadingMore,
     connectSocket,
     disconnectSocket,
     joinChannel,
     leaveChannel,
     sendChat,
-    onlineUsers,
+    loadMoreMessages,
   } = useChatStore();
 
   useEffect(() => {
     connectSocket();
     return () => {
-      console.log("Disconnecting socket on component unmount");
       disconnectSocket();
     };
   }, []);
 
   useEffect(() => {
     if (room_id && isConnected) {
-      console.log(`Joining channel: ${room_id}`);
       joinChannel(room_id);
     }
     return () => {
       if (currentChannel) {
-        console.log(`Leaving channel: ${currentChannel}`);
         leaveChannel();
       }
     };
@@ -267,7 +268,6 @@ function RoomPage() {
         return;
       }
 
-      console.log(`Sending chat message to ${currentChannel}`);
       sendChat(chat, userData?.email);
       setChat("");
 
@@ -542,6 +542,27 @@ function RoomPage() {
         <div className="flex-1 overflow-hidden bg-zinc-50">
           <ScrollArea className="h-full px-6 py-4">
             <div className="space-y-6 pb-4">
+              {hasMoreMessages && (
+                <div className="flex justify-center">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadMoreMessages}
+                    disabled={isLoadingMore}
+                    className="flex items-center gap-2"
+                  >
+                    {isLoadingMore ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      <>
+                        <ChevronUp className="h-4 w-4" />
+                        <span>Load older messages</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+
               {groupedMessages.map((group, groupIndex) => (
                 <div
                   key={`group-${groupIndex}`}
