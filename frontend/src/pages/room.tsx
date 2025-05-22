@@ -62,6 +62,9 @@ function RoomPage() {
   const [usersTyping, setUsersTyping] = useState<string[]>([]);
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  // Add this state to track when user sends a message
+  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(false);
+
   async function fetchUsers() {
     return (await api.get(`/api/users`)).data;
   }
@@ -123,20 +126,23 @@ function RoomPage() {
 
   useEffect(() => {
     if (hasAuthLoaded.current) return;
+
     const verifyAuthentication = async () => {
       setIsLoading(true);
+      hasAuthLoaded.current = true;
       try {
         await verifyAuth();
         setIsAuthVerified(true);
       } catch (error) {
         toast.error("Authentication required. Please log in.");
+        hasAuthLoaded.current = false;
       } finally {
         setIsLoading(false);
       }
     };
 
     verifyAuthentication();
-  }, [room_id, isModalOpen]);
+  }, []);
 
   useEffect(() => {
     if (isAuthVerified && userData && room_id && !hasLoadedRoom.current) {
@@ -223,9 +229,13 @@ function RoomPage() {
     };
   }, [socket, room_id]);
 
+  // Updated useEffect - only scroll to bottom when shouldScrollToBottom is true
   useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chats]);
+    if (shouldScrollToBottom) {
+      messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      setShouldScrollToBottom(false); // Reset the flag
+    }
+  }, [chats, shouldScrollToBottom]);
 
   useEffect(() => {
     setSidebarCollapsed(isMobile);
@@ -271,9 +281,8 @@ function RoomPage() {
       sendChat(chat, userData?.email);
       setChat("");
 
-      setTimeout(() => {
-        messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+      // Set flag to scroll to bottom after sending message
+      setShouldScrollToBottom(true);
     }
   };
 
@@ -361,6 +370,7 @@ function RoomPage() {
 
   if (isErrorRooms) {
     toast.error("Error fetching user data");
+    window.location.href = "/login";
     return;
   }
   return (

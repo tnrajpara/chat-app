@@ -68,7 +68,7 @@ export default function RegisterForm() {
     try {
       await axios.post(`${API_URL}/api/users`, formData);
       toast.success("Account created successfully!");
-      navigate("/login");
+      window.location.href = "/login";
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const status = err.response?.status;

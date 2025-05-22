@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { API_URL } from "@/constants";
 import axios from "axios";
-import { useNavigate } from "react-router";
+import { redirect, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
@@ -34,8 +34,8 @@ export default function LoginForm() {
         withCredentials: true,
       });
 
+      window.location.href = "/";
       toast.success("Login successful");
-      navigate("/");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const status = err.response?.status;
