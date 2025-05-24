@@ -24,7 +24,7 @@ const roomSchema = new mongoose.Schema(
     room_password: {
       type: String,
       validate: {
-        validator: function (value) {
+      validator: function (value) {
           if (this.is_private) {
             return value && value.trim().length > 0;
           }

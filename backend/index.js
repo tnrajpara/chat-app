@@ -12,8 +12,8 @@ const app = express();
 app.use(morgan("combined"));
 app.use(
   cors({
-    // origin: "https://chat-app-eight-rouge-53.vercel.app",
-    origin: "http://localhost:5173",
+    origin: "https://chat-app-eight-rouge-53.vercel.app",
+    // origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -32,8 +32,8 @@ app.use("/api/chats", require("./routes/chat.route"));
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    // origin: "https://chat-app-eight-rouge-53.vercel.app",
-    origin: "http://localhost:5173",
+    origin: "https://chat-app-eight-rouge-53.vercel.app",
+    // origin: "http://localhost:5173",
     methods: ["GET", "POST"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],

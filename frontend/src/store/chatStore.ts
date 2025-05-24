@@ -70,7 +70,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       console.error("Connection error:", err);
     });
 
-    // Chat message handling
     socket.on("chat", (data) => {
       const timestamp = data.created_at ? getHoursMinutes(data.created_at) : "";
       const originalTimestamp =
