@@ -248,7 +248,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   loadMoreMessages: async () => {
-    const { currentChannel, chats, isLoadingMore, nextBefore } = get();
+    const { currentChannel, isLoadingMore, nextBefore } = get();
 
     if (!currentChannel || isLoadingMore || !nextBefore) {
       console.log("Cannot load more messages:", {
